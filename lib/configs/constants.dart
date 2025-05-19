@@ -11,5 +11,12 @@ class AppConstants {
     BuiltInModelFile(name: "Talking", path: "assets/talking.glb"),
     BuiltInModelFile(name: "Fox", path: "assets/fox.glb"),
     BuiltInModelFile(name: "Fox DAE", path: "assets/fox.dae", isDae: true),
+    BuiltInModelFile(name: "Blue", path: "assets/blue.glb"),
+    BuiltInModelFile(name: "Tiger", path: "assets/tiger.glb"),
+    BuiltInModelFile(name: "Coffin", path: "assets/coffin.glb"),
+    BuiltInModelFile(name: "Mummy", path: "assets/mummy.glb"),
+    BuiltInModelFile(name: "Vase", path: "assets/vase.glb"),
+    BuiltInModelFile(name: "DecoratedVase", path: "assets/DecoratedVase.glb"),
+    BuiltInModelFile(name: "Emperor", path: "assets/emperor.glb"),
   ];
 }

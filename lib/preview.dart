@@ -61,7 +61,10 @@ class _PreviewModelState extends State<PreviewModel> {
 
   ARKitGltfNode _getNodeFromFlutterAsset(vector.Vector3 position) =>
       ARKitGltfNode(
-        assetType: AssetType.flutterAsset,
+        assetType:
+            widget.models[widget.selectedModelIndex].isAsset
+                ? AssetType.flutterAsset
+                : AssetType.documents,
         //url: 'assets/fox.glb',
         url: widget.models[widget.selectedModelIndex].path,
         scale: vector.Vector3(0.01, 0.01, 0.01),

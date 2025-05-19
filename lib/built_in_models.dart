@@ -1,9 +1,11 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:reveal/components/model_tile.dart';
 import 'package:reveal/configs/constants.dart';
 import 'package:reveal/configs/layout.dart';
 import 'package:reveal/configs/types.dart';
 import 'package:reveal/preview.dart';
+import 'package:reveal/services/file_service.dart';
 
 class BuildInModels extends StatefulWidget {
   final List<BuiltInModelFile> models = AppConstants.BUILT_IN_MODELS;
@@ -15,8 +17,57 @@ class BuildInModels extends StatefulWidget {
 
 class _BuildInModelsState extends State<BuildInModels> {
   @override
+  void initState() {
+    super.initState();
+    setState(() {
+      fetchFiles();
+    });
+  }
+
+  Future<void> fetchFiles() async {
+    print(widget.models.length);
+    final List<String> files = await FileService().getFiles();
+    for (String file in files) {
+      widget.models.add(
+        BuiltInModelFile(
+          path: file,
+          name: FileService().getFileName(file),
+          isDae: file.endsWith("dae"),
+          isAsset: false,
+        ),
+      );
+      print(widget.models.length);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    void pickFile() async {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        allowMultiple: false,
+      );
+
+      if (result != null) {
+        PlatformFile file = result.files[0];
+
+        String uploadToPath = await FileService().getUploadsDirectory(
+          file.name,
+        );
+        file.xFile.saveTo(uploadToPath);
+
+        setState(() {
+          fetchFiles();
+        });
+      } else {
+        print("No file selected");
+      }
+    }
+
     return AppLayout(
+      isShowingFAB: true,
+      onFABPressed: () {
+        pickFile();
+      },
       child: ListView.separated(
         itemCount: widget.models.length,
         separatorBuilder: (context, index) => const SizedBox(height: 10),
