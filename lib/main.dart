@@ -1,0 +1,21 @@
+import 'package:flutter/material.dart';
+import 'package:reveal/built_in_models.dart';
+import 'package:reveal/configs/theme.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  MyApp({super.key});
+
+  // This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      theme: appTheme,
+      title: 'Reveal 360',
+      home: BuildInModels(),
+    );
+  }
+}
