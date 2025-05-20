@@ -14,6 +14,7 @@ class _STTTestPageState extends State<STTTestPage> {
   SpeechToText _speechToText = SpeechToText();
   bool _speechEnabled = false;
   String _lastWords = '';
+  String _message = '';
 
   @override
   void initState() {
@@ -30,7 +31,9 @@ class _STTTestPageState extends State<STTTestPage> {
   /// Each time to start a speech recognition session
   void _startListening() async {
     await _speechToText.listen(onResult: _onSpeechResult);
-    setState(() {});
+    setState(() {
+      _message = "Listening ...";
+    });
   }
 
   /// Manually stop the active speech recognition session
@@ -39,7 +42,9 @@ class _STTTestPageState extends State<STTTestPage> {
   /// listen method.
   void _stopListening() async {
     await _speechToText.stop();
-    setState(() {});
+    setState(() {
+      _message = "Analyzing ...";
+    });
   }
 
   /// This is the callback that the SpeechToText plugin calls when
@@ -47,6 +52,7 @@ class _STTTestPageState extends State<STTTestPage> {
   void _onSpeechResult(SpeechRecognitionResult result) {
     setState(() {
       _lastWords = result.recognizedWords;
+      _message = "Analysis completed ...";
     });
   }
 
@@ -54,21 +60,37 @@ class _STTTestPageState extends State<STTTestPage> {
   Widget build(BuildContext context) {
     return AppLayout(
       isShowingFAB: true,
+      iconFAB: _speechToText.isListening ? Icons.stop : Icons.mic,
       onFABPressed: () {
-        if (_speechToText.isNotListening) _startListening();
-        _stopListening();
+        // if (_speechToText.isNotListening) _startListening();
+        // _stopListening();
+        if (_speechToText.isListening) {
+          _stopListening();
+        } else {
+          _startListening();
+        }
       },
-      child: Text(
-        // If listening is active show the recognized words
-        _speechToText.isListening
-            ? _lastWords
-            // If listening isn't active but could be tell the user
-            // how to start it, otherwise indicate that speech
-            // recognition is not yet ready or not supported on
-            // the target device
-            : _speechEnabled
-            ? 'Tap the microphone to start listening...'
-            : 'Speech not available',
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            // If listening is active show the recognized words
+            _speechToText.isListening
+                ? _lastWords
+                // If listening isn't active but could be tell the user
+                // how to start it, otherwise indicate that speech
+                // recognition is not yet ready or not supported on
+                // the target device
+                : _speechEnabled
+                ? 'Tap the microphone to start listening...'
+                : 'Speech not available',
+            style: const TextStyle(fontSize: 20),
+          ),
+          const SizedBox(height: 20),
+          Text(_lastWords, style: const TextStyle(fontSize: 30)),
+          const SizedBox(height: 20),
+          Text(_message, style: const TextStyle(fontSize: 20)),
+        ],
       ),
     );
   }

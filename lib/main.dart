@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:reveal/built_in_models.dart';
 import 'package:reveal/configs/theme.dart';
 import 'package:reveal/services/file_service.dart';

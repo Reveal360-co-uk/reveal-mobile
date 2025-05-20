@@ -1,15 +1,20 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
+import 'package:reveal/test_stt.dart';
 
 class AppLayout extends StatefulWidget {
   final Widget child;
   final bool isShowingFAB;
+  final IconData iconFAB;
   final Function? onFABPressed;
+  final Function? onMicPressed;
   const AppLayout({
     super.key,
     required this.child,
     this.onFABPressed,
+    this.onMicPressed,
     this.isShowingFAB = false,
+    this.iconFAB = Icons.add,
   });
 
   @override
@@ -39,10 +44,17 @@ class _AppLayoutState extends State<AppLayout> {
         elevation: 1,
         actions: <Widget>[
           IconButton(
-            icon: const Icon(Icons.settings),
+            icon: const Icon(Icons.mic, color: Colors.white),
             onPressed: () {
               // Handle settings action
-              print('Settings clicked');
+              print('Mic clicked');
+              if (widget.onMicPressed != null) {
+                widget.onMicPressed!();
+              }
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => STTTestPage()),
+              );
             },
           ),
         ],
@@ -59,7 +71,7 @@ class _AppLayoutState extends State<AppLayout> {
                     widget.onFABPressed!();
                   }
                 },
-                child: const Icon(Icons.add),
+                child: Icon(widget.iconFAB),
               )
               : null,
     );

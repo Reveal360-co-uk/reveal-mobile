@@ -21,3 +21,10 @@ class BuiltInModelFile {
     );
   }
 }
+
+class Questions {
+  final String question;
+  final String answer;
+
+  Questions({required this.question, required this.answer});
+}

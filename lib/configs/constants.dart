@@ -19,4 +19,18 @@ class AppConstants {
     BuiltInModelFile(name: "DecoratedVase", path: "assets/DecoratedVase.glb"),
     BuiltInModelFile(name: "Emperor", path: "assets/emperor.glb"),
   ];
+
+  // ignore: non_constant_identifier_names
+  static List<Questions> QUESTIONS = [
+    Questions(question: "hi", answer: "Hey"),
+    Questions(question: "hello", answer: "Hey"),
+    Questions(question: "how are you", answer: "I am great, how are you?"),
+    Questions(question: "what is your name", answer: "I am #name"),
+    Questions(
+      question: "can you tell me what is today's date",
+      answer:
+          "Today is ${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
+    ),
+    Questions(question: "Bye", answer: "See you later"),
+  ];
 }
