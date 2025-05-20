@@ -45,11 +45,13 @@ class _PreviewModelState extends State<PreviewModel> {
       // Here you can write your code
 
       setState(() {
+        print(textToSpeak);
         // Here you can write your code for open new view
         String finalText = textToSpeak.replaceAll(
           "#name",
           widget.models[widget.selectedModelIndex].name,
         );
+        _message = finalText;
         flutterTts.speak(finalText);
       });
     });
