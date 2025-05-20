@@ -73,6 +73,13 @@ flutter:
     - assets/talking.glb
     - assets/fox.glb
     - assets/fox.dae
+    - assets/blue.glb
+    - assets/coffin.glb
+    - assets/DecoratedVase.glb
+    - assets/emperor.gltf
+    - assets/mummy.glb
+    - assets/tiger.glb
+    - assets/vase.glb
     - assets/icons/logo.png
   #   - images/a_dot_ham.jpeg
 
