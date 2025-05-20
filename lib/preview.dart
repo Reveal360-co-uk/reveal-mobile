@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:arkit_plugin/arkit_plugin.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +29,7 @@ class _PreviewModelState extends State<PreviewModel> {
   String _lastWords = '';
   String _message = '';
   late ARKitController arkitController;
+  bool _hasSpoken = false;
 
   @override
   void initState() {
@@ -59,6 +62,12 @@ class _PreviewModelState extends State<PreviewModel> {
 
   /// This has to happen only once per app
   void _initSpeech() async {
+    if (Platform.isIOS) {
+      await flutterTts.setVoice({
+        "identifier": "com.apple.voice.compact.en-AU.Karen",
+      });
+    }
+    await flutterTts.setQueueMode(1);
     _speechEnabled = await _speechToText.initialize();
     setState(() {});
   }
@@ -68,6 +77,7 @@ class _PreviewModelState extends State<PreviewModel> {
     await _speechToText.listen(onResult: _onSpeechResult);
     setState(() {
       _message = "Listening ...";
+      _hasSpoken = false;
     });
   }
 
@@ -79,6 +89,7 @@ class _PreviewModelState extends State<PreviewModel> {
     await _speechToText.stop();
     setState(() {
       _message = "Analyzing ...";
+      _hasSpoken = false;
     });
   }
 
@@ -94,12 +105,16 @@ class _PreviewModelState extends State<PreviewModel> {
       (element) => element.question == _lastWords,
     );
 
-    print(_lastWords);
-    if (answer != null) {
-      print(answer!.answer);
-      speak(answer!.answer);
-    } else {
-      speak('Sorry, I did not understand that.');
+    _hasSpoken = false;
+
+    if (result.finalResult) {
+      print(_lastWords);
+      if (answer != null) {
+        print(answer!.answer);
+        speak(answer!.answer);
+      } else {
+        speak('Sorry, I did not understand that.');
+      }
     }
   }
 
@@ -155,6 +170,12 @@ class _PreviewModelState extends State<PreviewModel> {
   }
 
   void onARKitViewCreated(ARKitController arkitController) {
+    //Map<String, dynamic> _creationParams;
+    // UiKitView view = UiKitView(
+    //   viewType: 'ARKitView',
+    //   layoutDirection: TextDirection.ltr,
+    //   creationParams: ["animation"],
+    // );
     this.arkitController = arkitController;
     this.arkitController.onARTap = (ar) {
       final point = ar.firstWhereOrNull(

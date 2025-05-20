@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -19,10 +21,24 @@ class BuildInModels extends StatefulWidget {
 class _BuildInModelsState extends State<BuildInModels> {
   final FlutterTts flutterTts = FlutterTts();
 
+  void _initSpeech() async {
+    if (Platform.isIOS) {
+      await flutterTts.setVoice({
+        "identifier": "com.apple.voice.compact.en-AU.Karen",
+      });
+    }
+
+    flutterTts.speak('Hello, and welcome to Reveal three sixty');
+    setState(() {});
+  }
+
   @override
   void initState() {
     super.initState();
-    flutterTts.speak('Hello, and welcome to Reveal three sixty');
+    _initSpeech();
+    // await flutterTts.setVoice({"name": "Karen", "locale": "en-US"});
+    // flutterTts.speak('Hello, and welcome to Reveal three sixty');
+
     setState(() {
       fetchFiles();
     });

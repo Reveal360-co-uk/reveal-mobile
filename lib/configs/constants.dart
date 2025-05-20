@@ -31,6 +31,6 @@ class AppConstants {
       answer:
           "Today is ${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
     ),
-    Questions(question: "Bye", answer: "See you later"),
+    Questions(question: "bye", answer: "See you later"),
   ];
 }
