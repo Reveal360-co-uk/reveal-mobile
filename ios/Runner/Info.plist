@@ -6,6 +6,10 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Reveal 360</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>recognize speech</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>recognize microphone</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Photo Library Access needed</string>
 	<key>CFBundleDevelopmentRegion</key>

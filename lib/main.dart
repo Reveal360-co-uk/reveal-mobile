@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       theme: appTheme,
       title: 'Reveal 360',
-      home: STTTestPage(),
+      home: BuildInModels(),
     );
   }
 }
