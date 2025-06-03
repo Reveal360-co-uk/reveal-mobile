@@ -67,7 +67,6 @@ class _PreviewModelState extends State<PreviewModel> {
         "identifier": "com.apple.voice.compact.en-AU.Karen",
       });
     }
-    await flutterTts.setQueueMode(1);
     _speechEnabled = await _speechToText.initialize();
     setState(() {});
   }
@@ -102,7 +101,7 @@ class _PreviewModelState extends State<PreviewModel> {
     });
 
     Questions? answer = questions.firstWhereOrNull(
-      (element) => element.question == _lastWords,
+      (element) => element.question == _lastWords.toLowerCase(),
     );
 
     _hasSpoken = false;
@@ -110,8 +109,8 @@ class _PreviewModelState extends State<PreviewModel> {
     if (result.finalResult) {
       print(_lastWords);
       if (answer != null) {
-        print(answer!.answer);
-        speak(answer!.answer);
+        print(answer.answer);
+        speak(answer.answer);
       } else {
         speak('Sorry, I did not understand that.');
       }
@@ -120,7 +119,7 @@ class _PreviewModelState extends State<PreviewModel> {
 
   @override
   Widget build(BuildContext context) {
-    return AppLayout(
+    return ARAppLayout(
       isShowingFAB: true,
       iconFAB: _speechToText.isListening ? Icons.stop : Icons.mic,
       onFABPressed: () {
@@ -132,40 +131,46 @@ class _PreviewModelState extends State<PreviewModel> {
           _startListening();
         }
       },
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            SizedBox(
-              height: 650,
-              width: double.infinity,
-              child: ARKitSceneView(
-                showFeaturePoints: true,
-                enableTapRecognizer: true,
-                planeDetection: ARPlaneDetection.horizontalAndVertical,
-                onARKitViewCreated: onARKitViewCreated,
-              ),
-            ),
-            Text(
-              // If listening is active show the recognized words
-              _speechToText.isListening
-                  ? _lastWords
-                  // If listening isn't active but could be tell the user
-                  // how to start it, otherwise indicate that speech
-                  // recognition is not yet ready or not supported on
-                  // the target device
-                  : _speechEnabled
-                  ? 'Tap the microphone to start listening...'
-                  : 'Speech not available',
-              style: const TextStyle(fontSize: 20),
-            ),
-            const SizedBox(height: 20),
-            Text(_lastWords, style: const TextStyle(fontSize: 30)),
-            const SizedBox(height: 20),
-            Text(_message, style: const TextStyle(fontSize: 20)),
-          ],
-        ),
+      child: ARKitSceneView(
+        showFeaturePoints: true,
+        enableTapRecognizer: true,
+        planeDetection: ARPlaneDetection.horizontalAndVertical,
+        onARKitViewCreated: onARKitViewCreated,
       ),
+      // child: SingleChildScrollView(
+      //   child: Column(
+      //     mainAxisAlignment: MainAxisAlignment.start,
+      //     children: [
+      //       SizedBox(
+      //         height: 650,
+      //         width: double.infinity,
+      //         child: ARKitSceneView(
+      //           showFeaturePoints: true,
+      //           enableTapRecognizer: true,
+      //           planeDetection: ARPlaneDetection.horizontalAndVertical,
+      //           onARKitViewCreated: onARKitViewCreated,
+      //         ),
+      //       ),
+      //       Text(
+      //         // If listening is active show the recognized words
+      //         _speechToText.isListening
+      //             ? _lastWords
+      //             // If listening isn't active but could be tell the user
+      //             // how to start it, otherwise indicate that speech
+      //             // recognition is not yet ready or not supported on
+      //             // the target device
+      //             : _speechEnabled
+      //             ? 'Tap the microphone to start listening...'
+      //             : 'Speech not available',
+      //         style: const TextStyle(fontSize: 20),
+      //       ),
+      //       const SizedBox(height: 20),
+      //       Text(_lastWords, style: const TextStyle(fontSize: 30)),
+      //       const SizedBox(height: 20),
+      //       Text(_message, style: const TextStyle(fontSize: 20)),
+      //     ],
+      //   ),
+      // ),
     );
   }
 

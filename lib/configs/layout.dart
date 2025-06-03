@@ -77,3 +77,43 @@ class _AppLayoutState extends State<AppLayout> {
     );
   }
 }
+
+class ARAppLayout extends StatefulWidget {
+  final Widget child;
+  final bool isShowingFAB;
+  final IconData iconFAB;
+  final Function? onFABPressed;
+  final Function? onMicPressed;
+  const ARAppLayout({
+    super.key,
+    required this.child,
+    this.onFABPressed,
+    this.onMicPressed,
+    this.isShowingFAB = false,
+    this.iconFAB = Icons.add,
+  });
+
+  @override
+  State<ARAppLayout> createState() => _ARAppLayoutState();
+}
+
+class _ARAppLayoutState extends State<ARAppLayout> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: widget.child,
+      floatingActionButton:
+          widget.isShowingFAB
+              ? FloatingActionButton(
+                onPressed: () {
+                  // Handle FAB action
+                  if (widget.onFABPressed != null) {
+                    widget.onFABPressed!();
+                  }
+                },
+                child: Icon(widget.iconFAB),
+              )
+              : null,
+    );
+  }
+}
