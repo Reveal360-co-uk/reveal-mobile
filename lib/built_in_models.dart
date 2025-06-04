@@ -84,7 +84,7 @@ class _BuildInModelsState extends State<BuildInModels> {
     }
 
     return AppLayout(
-      isShowingFAB: true,
+      isShowingFAB: false,
       onFABPressed: () {
         pickFile();
       },

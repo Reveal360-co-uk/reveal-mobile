@@ -30,6 +30,9 @@ class _PreviewModelState extends State<PreviewModel> {
   String _message = '';
   late ARKitController arkitController;
   bool _hasSpoken = false;
+  double _scale = 0.1;
+  late ARKitGltfNode? _node;
+  OperationType currentOperation = OperationType.none;
 
   @override
   void initState() {
@@ -134,6 +137,8 @@ class _PreviewModelState extends State<PreviewModel> {
       child: ARKitSceneView(
         showFeaturePoints: true,
         enableTapRecognizer: true,
+        enablePinchRecognizer: true,
+        enableRotationRecognizer: true,
         planeDetection: ARPlaneDetection.horizontalAndVertical,
         onARKitViewCreated: onARKitViewCreated,
       ),
@@ -174,14 +179,55 @@ class _PreviewModelState extends State<PreviewModel> {
     );
   }
 
+  Future<void> animateNode(String nodeName) async {
+    await arkitController.playAnimation(
+      key: '',
+      sceneName: nodeName,
+      animationIdentifier: 'random',
+    );
+  }
+
   void onARKitViewCreated(ARKitController arkitController) {
-    //Map<String, dynamic> _creationParams;
-    // UiKitView view = UiKitView(
-    //   viewType: 'ARKitView',
-    //   layoutDirection: TextDirection.ltr,
-    //   creationParams: ["animation"],
-    // );
     this.arkitController = arkitController;
+
+    this.arkitController.onNodeTap = (List<String> nodeNames) {
+      if (nodeNames.isNotEmpty) {
+        final tappedNodeName = nodeNames.first;
+
+        // animateNode(tappedNodeName).then((_) {
+        //   print('Animation completed for node: $tappedNodeName');
+        // });
+
+        print('Tapped node: $tappedNodeName');
+      }
+    };
+
+    // _scale = scale;
+    //         _node!.scale = vector.Vector3(_scale, _scale, _scale);
+    //         print('Pinched node: ${node.name} with scale: $_scale');
+
+    this.arkitController.onNodePinch = (List<ARKitNodePinchResult> results) {
+      if (results.isNotEmpty && (currentOperation != OperationType.rotation)) {
+        currentOperation = OperationType.pinch;
+        final scale = results.first.scale;
+
+        _scale = scale;
+        _node!.scale = vector.Vector3.all(_scale);
+        print('Pinched node: ${_node!.name} with scale: $_scale');
+      }
+    };
+
+    this.arkitController.onNodeRotation = (
+      List<ARKitNodeRotationResult> results,
+    ) {
+      if (results.isNotEmpty && (currentOperation != OperationType.pinch)) {
+        currentOperation = OperationType.rotation;
+        final rotation = results.first.rotation;
+        _node!.rotation = vector.Matrix3.rotationY(rotation);
+        print('Rotated node: ${_node!.name} with rotation: $rotation');
+      }
+    };
+
     this.arkitController.onARTap = (ar) {
       final point = ar.firstWhereOrNull(
         (o) => o.type == ARKitHitTestResultType.featurePoint,
@@ -193,14 +239,21 @@ class _PreviewModelState extends State<PreviewModel> {
   }
 
   void _onARTapHandler(ARKitTestResult point) {
+    try {
+      //arkitController.remove(_node!.name);
+      return;
+    } catch (e) {
+      print(e);
+    }
+
     final position = vector.Vector3(
       point.worldTransform.getColumn(3).x,
       point.worldTransform.getColumn(3).y,
       point.worldTransform.getColumn(3).z,
     );
 
-    final node = _getNodeFromFlutterAsset(position);
-    arkitController.add(node);
+    _node = _getNodeFromFlutterAsset(position);
+    arkitController.add(_node!);
   }
 
   ARKitGltfNode _getNodeFromFlutterAsset(vector.Vector3 position) =>
@@ -211,8 +264,11 @@ class _PreviewModelState extends State<PreviewModel> {
                 : AssetType.documents,
         //url: 'assets/fox.glb',
         url: widget.models[widget.selectedModelIndex].path,
-        scale: vector.Vector3(0.01, 0.01, 0.01),
-        name: 'fox_node', // Consistent naming for animation control
+        scale: vector.Vector3(_scale, _scale, _scale),
+        name:
+            widget
+                .models[widget.selectedModelIndex]
+                .name, // Consistent naming for animation control
         position: position,
       );
 }

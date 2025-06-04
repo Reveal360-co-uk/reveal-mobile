@@ -66,21 +66,8 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/apple.dae
-    - assets/Box.gltf
-    - assets/sample.glb
-    - assets/earth.glb
-    - assets/model.gltf
-    - assets/talking.glb
-    - assets/fox.glb
-    - assets/fox.dae
-    - assets/blue.glb
-    - assets/coffin.glb
-    - assets/DecoratedVase.glb
-    - assets/emperor.gltf
-    - assets/mummy.glb
-    - assets/tiger.glb
-    - assets/vase.glb
+    - assets/woman.glb
+    - assets/plesiosaurus.glb
     - assets/icons/logo.png
   #   - images/a_dot_ham.jpeg
 
