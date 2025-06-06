@@ -1,5 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
+import 'package:reveal/built_in_models.dart';
 import 'package:reveal/test_stt.dart';
 
 class AppLayout extends StatefulWidget {
@@ -104,14 +105,30 @@ class _ARAppLayoutState extends State<ARAppLayout> {
       body: widget.child,
       floatingActionButton:
           widget.isShowingFAB
-              ? FloatingActionButton(
-                onPressed: () {
-                  // Handle FAB action
-                  if (widget.onFABPressed != null) {
-                    widget.onFABPressed!();
-                  }
-                },
-                child: Icon(widget.iconFAB),
+              ? Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  FloatingActionButton(
+                    onPressed: () {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (_) => BuildInModels()),
+                        (route) => false,
+                      );
+                    },
+                    child: Icon(Icons.chevron_left),
+                  ),
+                  SizedBox(width: 10),
+                  FloatingActionButton(
+                    onPressed: () {
+                      // Handle FAB action
+                      if (widget.onFABPressed != null) {
+                        widget.onFABPressed!();
+                      }
+                    },
+                    child: Icon(widget.iconFAB),
+                  ),
+                ],
               )
               : null,
     );

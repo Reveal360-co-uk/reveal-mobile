@@ -1,0 +1,241 @@
+import 'dart:io';
+
+import 'package:arkit_plugin/arkit_plugin.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_3d_controller/flutter_3d_controller.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+import 'package:reveal/configs/constants.dart';
+import 'package:reveal/configs/layout.dart';
+import 'package:reveal/configs/types.dart';
+import 'package:speech_to_text/speech_recognition_result.dart';
+import 'package:speech_to_text/speech_to_text.dart';
+
+class ThreeDPage extends StatefulWidget {
+  final int selectedModelIndex;
+  final List<BuiltInModelFile> models = AppConstants.BUILT_IN_MODELS;
+  final List<String> animations = [];
+  ThreeDPage({super.key, required this.selectedModelIndex});
+
+  @override
+  State<ThreeDPage> createState() => _ThreeDPageState();
+}
+
+class _ThreeDPageState extends State<ThreeDPage> {
+  // ignore: non_constant_identifier_names
+  late Flutter3DController _3DController;
+  final FlutterTts flutterTts = FlutterTts();
+  final List<Questions?> _questions = AppConstants.QUESTIONS;
+  final SpeechToText _speechToText = SpeechToText();
+  late String _lastWords = '';
+  late ARKitController _arKitController;
+  late bool _speechEnabled = false;
+  late String _message = '';
+  late bool _hasSpoken = false;
+  late List<String>? _linesToSpeak;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Hides the bottom navigation bar and the status bar
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarIconBrightness: Brightness.light,
+      ),
+    );
+
+    _linesToSpeak = widget.models[widget.selectedModelIndex].description;
+  }
+
+  @override
+  void dispose() {
+    _arKitController.dispose();
+    super.dispose();
+  }
+
+  // *** Speech related methods
+  Future<void> speak(String textToSpeak) async {
+    return await Future.delayed(const Duration(milliseconds: 1000), () {
+      // Here you can write your code
+
+      String finalText = textToSpeak.replaceAll(
+        "#name",
+        widget.models[widget.selectedModelIndex].name,
+      );
+
+      flutterTts.speak(finalText).then((_) {
+        return;
+      });
+    });
+  }
+
+  /// This has to happen only once per app
+  void _initSpeech() async {
+    if (Platform.isIOS) {
+      if (widget.selectedModelIndex == 0) {
+        await flutterTts.setVoice({
+          "identifier": "com.apple.ttsbundle.Daniel-compact",
+        });
+      } else {
+        await flutterTts.setVoice({
+          "identifier": "com.apple.ttsbundle.siri_female_en-GB_compact",
+        });
+      }
+    }
+    //_speechEnabled = await _speechToText.initialize();
+
+    if (_speechEnabled) {
+      speakDescription();
+    }
+
+    setState(() {
+      _linesToSpeak = widget.models[widget.selectedModelIndex].description;
+      speakDescription();
+    });
+  }
+
+  void speakLine(lineToSpeak) async => await speak(lineToSpeak);
+
+  void speakDescription() async {
+    if (_linesToSpeak == null) {
+      print("No lines to speak");
+    } else {
+      Future.wait(_linesToSpeak!.map((line) => speak(line)).toList());
+    }
+  }
+
+  /// Each time to start a speech recognition session
+  void _startListening() async {
+    await _speechToText.listen(onResult: _onSpeechResult);
+    setState(() {
+      _message = "Listening ...";
+      _hasSpoken = false;
+    });
+  }
+
+  /// Manually stop the active speech recognition session
+  /// Note that there are also timeouts that each platform enforces
+  /// and the SpeechToText plugin supports setting timeouts on the
+  /// listen method.
+  void _stopListening() async {
+    await _speechToText.stop();
+    setState(() {
+      _message = "Analyzing ...";
+      _hasSpoken = false;
+    });
+  }
+
+  /// This is the callback that the SpeechToText plugin calls when
+  /// the platform returns recognized words.
+  void _onSpeechResult(SpeechRecognitionResult result) {
+    setState(() {
+      _lastWords = result.recognizedWords;
+      _message = "Analysis completed ...";
+    });
+
+    Questions? answer = _questions.firstWhere(
+      (element) => element!.question == _lastWords.toLowerCase(),
+      orElse: () => null,
+    );
+
+    _hasSpoken = false;
+
+    if (result.finalResult) {
+      print(_lastWords);
+      if (answer != null) {
+        print(answer.answer);
+        speak(answer.answer);
+      } else {
+        speak('Sorry, I did not understand that.');
+      }
+    }
+  }
+  // *** END: Speech related methods
+
+  @override
+  Widget build(BuildContext context) {
+    return ARAppLayout(
+      isShowingFAB: true,
+      iconFAB:
+          _speechEnabled
+              ? _speechToText.isListening
+                  ? Icons.stop
+                  : Icons.mic
+              : Icons.play_arrow,
+      onFABPressed: () {
+        if (!_speechEnabled) {
+          _initSpeech();
+        } else {
+          if (_speechToText.isListening) {
+            _stopListening();
+          } else {
+            _startListening();
+          }
+        }
+      },
+      child: Stack(
+        children: [
+          ARKitSceneView(
+            onARKitViewCreated: (ARKitController arKitController) {
+              _arKitController = arKitController;
+            },
+          ),
+          SizedBox(
+            width: double.infinity,
+            height: double.infinity - 300,
+            child: Flutter3DViewer(
+              src: widget.models[widget.selectedModelIndex].path,
+              controller: controller(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Flutter3DController controller() {
+    _3DController = Flutter3DController();
+
+    try {
+      _3DController.onModelLoaded.addListener(() {
+        _3DController.getAvailableTextures().then((textures) {
+          if (textures.isNotEmpty) {
+            final textureName = textures.first;
+            print('Available texture: $textureName');
+            _3DController.setTexture(textureName: textureName);
+          } else {
+            print('No textures available.');
+          }
+        });
+        _3DController.getAvailableAnimations().then((animations) {
+          if (animations.isNotEmpty) {
+            final animationName = animations.first;
+            print('Available animation: $animationName');
+            _3DController.playAnimation(
+              animationName: animationName,
+              loopCount: 0,
+            );
+          } else {
+            print('No animations available.');
+          }
+        });
+        _3DController.playAnimation(animationName: "Animation", loopCount: 0);
+        //_initSpeech();
+
+        // widget.models[widget.selectedModelIndex].description?.forEach((
+        //   element,
+        // ) {
+        //   speak(element);
+        // });
+      });
+    } catch (e) {
+      print(e);
+    }
+
+    return _3DController;
+  }
+}

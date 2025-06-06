@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:reveal/services/file_service.dart';
 
 class BuiltInModelFile {
@@ -7,12 +8,14 @@ class BuiltInModelFile {
   final String path;
   final bool isDae;
   final bool isAsset;
+  final List<String>? description;
 
   BuiltInModelFile({
     required this.name,
     required this.path,
     this.isDae = false,
     this.isAsset = true,
+    this.description,
   });
 
   Future<List<BuiltInModelFile>> createdModelsFromDownloads() async {
@@ -31,41 +34,11 @@ class Questions {
   Questions({required this.question, required this.answer});
 }
 
-class Late<T> {
-  final ValueNotifier<bool> _initialization = ValueNotifier(false);
-  late T _val;
+class BottomMenuItem {
+  final String title;
+  final IconData icon;
 
-  Late([T? value]) {
-    if (value != null) {
-      this.val = value;
-    }
-  }
-
-  get isInitialized {
-    return _initialization.value;
-  }
-
-  T get val => _val;
-
-  set val(T val) =>
-      this
-        .._initialization.value = true
-        .._val = val;
-}
-
-extension LateExtension<T> on T {
-  Late<T> get late => Late<T>();
-}
-
-extension ExtLate on Late {
-  Future<bool> get wait {
-    Completer<bool> completer = Completer();
-    this._initialization.addListener(() async {
-      completer.complete(this._initialization.value);
-    });
-
-    return completer.future;
-  }
+  BottomMenuItem({required this.title, required this.icon});
 }
 
 enum OperationType { none, pinch, rotation, pan, tap }

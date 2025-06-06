@@ -9,6 +9,7 @@ import 'package:reveal/configs/layout.dart';
 import 'package:reveal/configs/types.dart';
 import 'package:reveal/preview.dart';
 import 'package:reveal/services/file_service.dart';
+import 'package:reveal/views/three_d.dart';
 
 class BuildInModels extends StatefulWidget {
   final List<BuiltInModelFile> models = AppConstants.BUILT_IN_MODELS;
@@ -40,7 +41,7 @@ class _BuildInModelsState extends State<BuildInModels> {
     // flutterTts.speak('Hello, and welcome to Reveal three sixty');
 
     setState(() {
-      fetchFiles();
+      //fetchFiles();
     });
   }
 
@@ -101,7 +102,7 @@ class _BuildInModelsState extends State<BuildInModels> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => PreviewModel(selectedModelIndex: index),
+                  builder: (context) => ThreeDPage(selectedModelIndex: index),
                 ),
               );
               // You can add your logic here to handle the model selection
