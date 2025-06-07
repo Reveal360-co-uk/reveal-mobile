@@ -8,6 +8,7 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:reveal/configs/constants.dart';
 import 'package:reveal/configs/layout.dart';
 import 'package:reveal/configs/types.dart';
+import 'package:reveal/services/ai_service.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
@@ -33,6 +34,8 @@ class _ThreeDPageState extends State<ThreeDPage> {
   late String _message = '';
   late bool _hasSpoken = false;
   late List<String>? _linesToSpeak;
+  late AiService _aiService;
+  late bool _isSpeaking = false;
 
   @override
   void initState() {
@@ -59,6 +62,10 @@ class _ThreeDPageState extends State<ThreeDPage> {
 
   // *** Speech related methods
   Future<void> speak(String textToSpeak) async {
+    setState(() {
+      _isSpeaking = true;
+      _message = "Speaking ...";
+    });
     return await Future.delayed(const Duration(milliseconds: 1000), () {
       // Here you can write your code
 
@@ -68,6 +75,10 @@ class _ThreeDPageState extends State<ThreeDPage> {
       );
 
       flutterTts.speak(finalText).then((_) {
+        setState(() {
+          _isSpeaking = false;
+          _message = "Done Speaking ...";
+        });
         return;
       });
     });
@@ -90,7 +101,7 @@ class _ThreeDPageState extends State<ThreeDPage> {
           });
         } else {
           await flutterTts.setVoice({
-            "identifier": "com.apple.ttsbundle.siri_female_en-GB_compact",
+            "identifier": "com.apple.ttsbundle.Lekha-compact",
           });
         }
       }
@@ -149,57 +160,29 @@ class _ThreeDPageState extends State<ThreeDPage> {
       });
 
       print(_lastWords.toLowerCase());
-      String answer = "Answer";
 
-      for (var question in _questions) {
-        if (question != null &&
-            question.question.toLowerCase() == _lastWords.toLowerCase()) {
-          answer = question.answer;
-          break;
-        }
-      }
+      _aiService.generateResponse(_lastWords).then((response) {
+        speak(response);
+        print(response);
+      });
 
-      if (answer == "Answer") {
-        answer = 'Sorry, I did not understand that.';
-      }
+      // String answer = "Answer";
 
-      speak(answer);
-      print(answer);
+      // for (var question in _questions) {
+      //   if (question != null &&
+      //       question.question.toLowerCase() == _lastWords.toLowerCase()) {
+      //     answer = question.answer;
+      //     break;
+      //   }
+      // }
+
+      // if (answer == "Answer") {
+      //   answer = 'Sorry, I did not understand that.';
+      // }
+
+      // speak(answer);
+      // print(answer);
     }
-
-    // setState(() {
-    //   _lastWords = result.recognizedWords;
-    //   _message = "Analysis completed ...";
-    // });
-
-    // print(_lastWords.toLowerCase());
-
-    // speak(_lastWords);
-    // Questions? answer = _questions.singleWhere(
-    //   (question) => question!.question == _lastWords.toLowerCase(),
-    //   orElse: () => null,
-    // );
-
-    // print("Answer: $answer");
-
-    // // = _questions.firstWhere(
-    // //   (element) => element!.question == _lastWords.toLowerCase(),
-    // //   orElse: () => null,
-    // // );
-
-    // print("Result: ${result.recognizedWords} - ${answer!.answer}");
-
-    // _hasSpoken = false;
-
-    // if (result.finalResult) {
-    //   print(_lastWords);
-    //   if (answer != null) {
-    //     print(answer.answer);
-    //     speak(answer.answer);
-    //   } else {
-    //     speak('Sorry, I did not understand that.');
-    //   }
-    // }
   }
   // *** END: Speech related methods
 
@@ -209,7 +192,7 @@ class _ThreeDPageState extends State<ThreeDPage> {
       isShowingFAB: true,
       iconFAB:
           _speechEnabled
-              ? _speechToText.isListening
+              ? _speechToText.isListening || _isSpeaking
                   ? Icons.stop
                   : Icons.mic
               : Icons.play_arrow,
@@ -219,6 +202,12 @@ class _ThreeDPageState extends State<ThreeDPage> {
         } else {
           if (_speechToText.isListening) {
             _stopListening();
+          } else if (_isSpeaking) {
+            flutterTts.stop();
+            setState(() {
+              _isSpeaking = false;
+              _message = "Stopped Speaking ...";
+            });
           } else {
             _startListening();
           }
@@ -276,6 +265,8 @@ class _ThreeDPageState extends State<ThreeDPage> {
         if (!_speechEnabled) {
           _initSpeech();
         }
+
+        _aiService = AiService();
       });
     } catch (e) {
       print(e);
