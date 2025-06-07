@@ -109,6 +109,7 @@ class _ARAppLayoutState extends State<ARAppLayout> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   FloatingActionButton(
+                    heroTag: 'back',
                     onPressed: () {
                       Navigator.pushAndRemoveUntil(
                         context,
@@ -120,6 +121,7 @@ class _ARAppLayoutState extends State<ARAppLayout> {
                   ),
                   SizedBox(width: 10),
                   FloatingActionButton(
+                    heroTag: 'mic',
                     onPressed: () {
                       // Handle FAB action
                       if (widget.onFABPressed != null) {

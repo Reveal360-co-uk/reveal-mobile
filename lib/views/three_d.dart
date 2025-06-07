@@ -75,27 +75,36 @@ class _ThreeDPageState extends State<ThreeDPage> {
 
   /// This has to happen only once per app
   void _initSpeech() async {
-    if (Platform.isIOS) {
-      if (widget.selectedModelIndex == 0) {
-        await flutterTts.setVoice({
-          "identifier": "com.apple.ttsbundle.Daniel-compact",
-        });
-      } else {
-        await flutterTts.setVoice({
-          "identifier": "com.apple.ttsbundle.siri_female_en-GB_compact",
-        });
+    if (!_speechEnabled) {
+      if (Platform.isIOS) {
+        await flutterTts.setIosAudioCategory(
+          IosTextToSpeechAudioCategory.playback,
+          [IosTextToSpeechAudioCategoryOptions.defaultToSpeaker],
+        );
+        await flutterTts.setPitch(0.8);
+        await flutterTts.setSpeechRate(0.4);
+
+        if (widget.selectedModelIndex == 0) {
+          await flutterTts.setVoice({
+            "identifier": "com.apple.ttsbundle.Daniel-compact",
+          });
+        } else {
+          await flutterTts.setVoice({
+            "identifier": "com.apple.ttsbundle.siri_female_en-GB_compact",
+          });
+        }
       }
-    }
-    //_speechEnabled = await _speechToText.initialize();
+      _speechEnabled = await _speechToText.initialize();
 
-    if (_speechEnabled) {
-      speakDescription();
+      setState(() {
+        //_speechEnabled = true;
+        _linesToSpeak = widget.models[widget.selectedModelIndex].description;
+        //speakDescription();
+      });
+    } else {
+      print("Speech already enabled");
+      //speakDescription();
     }
-
-    setState(() {
-      _linesToSpeak = widget.models[widget.selectedModelIndex].description;
-      speakDescription();
-    });
   }
 
   void speakLine(lineToSpeak) async => await speak(lineToSpeak);
@@ -125,34 +134,72 @@ class _ThreeDPageState extends State<ThreeDPage> {
     await _speechToText.stop();
     setState(() {
       _message = "Analyzing ...";
-      _hasSpoken = false;
+      _hasSpoken = true;
     });
   }
 
   /// This is the callback that the SpeechToText plugin calls when
   /// the platform returns recognized words.
   void _onSpeechResult(SpeechRecognitionResult result) {
-    setState(() {
-      _lastWords = result.recognizedWords;
-      _message = "Analysis completed ...";
-    });
+    if (_hasSpoken) {
+      setState(() {
+        _hasSpoken = false;
+        _lastWords = result.recognizedWords;
+        _message = "Analysis completed ...";
+      });
 
-    Questions? answer = _questions.firstWhere(
-      (element) => element!.question == _lastWords.toLowerCase(),
-      orElse: () => null,
-    );
+      print(_lastWords.toLowerCase());
+      String answer = "Answer";
 
-    _hasSpoken = false;
-
-    if (result.finalResult) {
-      print(_lastWords);
-      if (answer != null) {
-        print(answer.answer);
-        speak(answer.answer);
-      } else {
-        speak('Sorry, I did not understand that.');
+      for (var question in _questions) {
+        if (question != null &&
+            question.question.toLowerCase() == _lastWords.toLowerCase()) {
+          answer = question.answer;
+          break;
+        }
       }
+
+      if (answer == "Answer") {
+        answer = 'Sorry, I did not understand that.';
+      }
+
+      speak(answer);
+      print(answer);
     }
+
+    // setState(() {
+    //   _lastWords = result.recognizedWords;
+    //   _message = "Analysis completed ...";
+    // });
+
+    // print(_lastWords.toLowerCase());
+
+    // speak(_lastWords);
+    // Questions? answer = _questions.singleWhere(
+    //   (question) => question!.question == _lastWords.toLowerCase(),
+    //   orElse: () => null,
+    // );
+
+    // print("Answer: $answer");
+
+    // // = _questions.firstWhere(
+    // //   (element) => element!.question == _lastWords.toLowerCase(),
+    // //   orElse: () => null,
+    // // );
+
+    // print("Result: ${result.recognizedWords} - ${answer!.answer}");
+
+    // _hasSpoken = false;
+
+    // if (result.finalResult) {
+    //   print(_lastWords);
+    //   if (answer != null) {
+    //     print(answer.answer);
+    //     speak(answer.answer);
+    //   } else {
+    //     speak('Sorry, I did not understand that.');
+    //   }
+    // }
   }
   // *** END: Speech related methods
 
@@ -180,6 +227,7 @@ class _ThreeDPageState extends State<ThreeDPage> {
       child: Stack(
         children: [
           ARKitSceneView(
+            configuration: ARKitConfiguration.worldTracking,
             onARKitViewCreated: (ARKitController arKitController) {
               _arKitController = arKitController;
             },
@@ -224,13 +272,10 @@ class _ThreeDPageState extends State<ThreeDPage> {
           }
         });
         _3DController.playAnimation(animationName: "Animation", loopCount: 0);
-        //_initSpeech();
 
-        // widget.models[widget.selectedModelIndex].description?.forEach((
-        //   element,
-        // ) {
-        //   speak(element);
-        // });
+        if (!_speechEnabled) {
+          _initSpeech();
+        }
       });
     } catch (e) {
       print(e);

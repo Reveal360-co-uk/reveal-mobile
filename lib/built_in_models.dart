@@ -7,7 +7,6 @@ import 'package:reveal/components/model_tile.dart';
 import 'package:reveal/configs/constants.dart';
 import 'package:reveal/configs/layout.dart';
 import 'package:reveal/configs/types.dart';
-import 'package:reveal/preview.dart';
 import 'package:reveal/services/file_service.dart';
 import 'package:reveal/views/three_d.dart';
 
@@ -25,8 +24,12 @@ class _BuildInModelsState extends State<BuildInModels> {
   void _initSpeech() async {
     if (Platform.isIOS) {
       await flutterTts.setVoice({
-        "identifier": "com.apple.voice.compact.en-AU.Karen",
+        "identifier": "com.apple.ttsbundle.siri_female_en-GB_compact",
       });
+      await flutterTts.setIosAudioCategory(
+        IosTextToSpeechAudioCategory.playback,
+        [IosTextToSpeechAudioCategoryOptions.defaultToSpeaker],
+      );
     }
 
     flutterTts.speak('Hello, and welcome to Reveal three sixty');
