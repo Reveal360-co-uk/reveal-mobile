@@ -11,7 +11,7 @@ class STTTestPage extends StatefulWidget {
 }
 
 class _STTTestPageState extends State<STTTestPage> {
-  SpeechToText _speechToText = SpeechToText();
+  final SpeechToText _speechToText = SpeechToText();
   bool _speechEnabled = false;
   String _lastWords = '';
   String _message = '';

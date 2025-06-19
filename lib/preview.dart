@@ -24,7 +24,7 @@ class PreviewModel extends StatefulWidget {
 class _PreviewModelState extends State<PreviewModel> {
   final FlutterTts flutterTts = FlutterTts();
   List<Questions> questions = AppConstants.QUESTIONS;
-  SpeechToText _speechToText = SpeechToText();
+  final SpeechToText _speechToText = SpeechToText();
   bool _speechEnabled = false;
   String _lastWords = '';
   String _message = '';

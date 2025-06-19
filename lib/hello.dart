@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:vector_math/vector_math_64.dart' as vector;
 
 class LoadGltfOrGlbFilePage extends StatefulWidget {
+  const LoadGltfOrGlbFilePage({super.key});
+
   @override
   State<LoadGltfOrGlbFilePage> createState() => _LoadGltfOrGlbFilePageState();
 }
@@ -28,8 +30,8 @@ class _LoadGltfOrGlbFilePageState extends State<LoadGltfOrGlbFilePage> {
       onARKitViewCreated: onARKitViewCreated,
     ),
     floatingActionButton: FloatingActionButton(
-      child: Icon(Icons.play_arrow),
-      onPressed: _playAnimation, // Added animation trigger button
+      onPressed: _playAnimation,
+      child: Icon(Icons.play_arrow), // Added animation trigger button
     ),
   );
 
@@ -70,7 +72,7 @@ class _LoadGltfOrGlbFilePageState extends State<LoadGltfOrGlbFilePage> {
 
   // New method to play animation
   void _playAnimation() {
-    this.arkitController.playAnimation(
+    arkitController.playAnimation(
       key: "animation",
       sceneName: "fox_node",
       animationIdentifier: "Take 001",
