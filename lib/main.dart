@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:reveal/built_in_models.dart';
 import 'package:reveal/configs/theme.dart';
-import 'package:reveal/views/three_d.dart';
+import 'package:reveal/services/naviagtion_service.dart';
+import 'package:reveal/views/test/camera/page.dart';
+//import 'package:reveal/views/home/page.dart';
 
 void main() {
   runApp(MyApp());
@@ -14,10 +15,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: NavigationService.navigatorKey,
       debugShowCheckedModeBanner: false,
       theme: appTheme,
       title: 'Reveal 360',
-      home: BuildInModels(),
+      home: CameraTestPage(),
     );
   }
 }

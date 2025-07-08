@@ -134,14 +134,16 @@ class _PreviewModelState extends State<PreviewModel> {
           _startListening();
         }
       },
-      child: ARKitSceneView(
-        showFeaturePoints: true,
-        enableTapRecognizer: true,
-        enablePinchRecognizer: true,
-        enableRotationRecognizer: true,
-        planeDetection: ARPlaneDetection.horizontalAndVertical,
-        onARKitViewCreated: onARKitViewCreated,
-      ),
+      children: [
+        ARKitSceneView(
+          showFeaturePoints: true,
+          enableTapRecognizer: true,
+          enablePinchRecognizer: true,
+          enableRotationRecognizer: true,
+          planeDetection: ARPlaneDetection.horizontalAndVertical,
+          onARKitViewCreated: onARKitViewCreated,
+        ),
+      ],
       // child: SingleChildScrollView(
       //   child: Column(
       //     mainAxisAlignment: MainAxisAlignment.start,

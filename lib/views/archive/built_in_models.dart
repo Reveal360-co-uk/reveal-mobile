@@ -8,7 +8,7 @@ import 'package:reveal/configs/constants.dart';
 import 'package:reveal/configs/layout.dart';
 import 'package:reveal/configs/types.dart';
 import 'package:reveal/services/file_service.dart';
-import 'package:reveal/views/three_d.dart';
+import 'package:reveal/views/archive/three_d.dart';
 
 class BuildInModels extends StatefulWidget {
   final List<BuiltInModelFile> models = AppConstants.BUILT_IN_MODELS;

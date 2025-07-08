@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:reveal/configs/types.dart';
 
+enum VoiceLanguages { hindi, english }
+
 class AppConstants {
   // ignore: non_constant_identifier_names
   static List<BuiltInModelFile> BUILT_IN_MODELS = [

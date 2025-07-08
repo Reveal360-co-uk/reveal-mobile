@@ -213,24 +213,26 @@ class _ThreeDPageState extends State<ThreeDPage> {
           }
         }
       },
-      child: Stack(
-        children: [
-          ARKitSceneView(
-            configuration: ARKitConfiguration.worldTracking,
-            onARKitViewCreated: (ARKitController arKitController) {
-              _arKitController = arKitController;
-            },
-          ),
-          SizedBox(
-            width: double.infinity,
-            height: double.infinity - 300,
-            child: Flutter3DViewer(
-              src: widget.models[widget.selectedModelIndex].path,
-              controller: controller(),
+      children: [
+        Stack(
+          children: [
+            ARKitSceneView(
+              configuration: ARKitConfiguration.worldTracking,
+              onARKitViewCreated: (ARKitController arKitController) {
+                _arKitController = arKitController;
+              },
             ),
-          ),
-        ],
-      ),
+            SizedBox(
+              width: double.infinity,
+              height: double.infinity - 300,
+              child: Flutter3DViewer(
+                src: widget.models[widget.selectedModelIndex].path,
+                controller: controller(),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
