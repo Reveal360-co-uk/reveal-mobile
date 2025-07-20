@@ -7,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:reveal/views/archive/built_in_models.dart';
 import 'package:reveal/views/archive/test_stt.dart';
 import 'package:vector_math/vector_math_64.dart' as vector;
-import 'package:collection/collection.dart';
 
 class AppLayout extends StatefulWidget {
   final Widget child;
@@ -91,13 +90,20 @@ class ARAppLayout extends StatefulWidget {
   final IconData iconFAB;
   final Function? onFABPressed;
   final Function? onMicPressed;
+  final bool isShowDarkBackground;
+  //final Function? onImageDetected;
+  //final Function? onImageRemoved;
+
   const ARAppLayout({
     super.key,
     required this.children,
     this.onFABPressed,
     this.onMicPressed,
+    //this.onImageDetected,
+    //this.onImageRemoved,
     this.isShowingFAB = false,
     this.iconFAB = Icons.add,
+    this.isShowDarkBackground = false,
   });
 
   @override
@@ -107,9 +113,9 @@ class ARAppLayout extends StatefulWidget {
 class _ARAppLayoutState extends State<ARAppLayout> {
   late ARKitController arkitController;
   List<ARKitReferenceImage> detectionImages = [];
-  String url = "assets/mascot-01.glb";
   bool anchorWasFound = false;
   Timer? timer;
+  String message = "";
 
   @override
   void initState() {
@@ -131,172 +137,197 @@ class _ARAppLayoutState extends State<ARAppLayout> {
     // );
     // detectionImages.add(newImage);
 
-    // SystemChrome.setPreferredOrientations([
-    //   DeviceOrientation.landscapeLeft, // Left-side Landscape
-    //   DeviceOrientation.landscapeRight, // Right-side Landscape
-    // ]);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft, // Left-side Landscape
+      DeviceOrientation.landscapeRight, // Right-side Landscape
+    ]);
   }
 
   @override
   void dispose() {
+    arkitController.onAddNodeForAnchor = null;
+    arkitController.onUpdateNodeForAnchor = null;
     arkitController.dispose();
     timer?.cancel();
     super.dispose();
+  }
+
+  Widget arKitScene() {
+    return ARKitSceneView(
+      //planeDetection: ARPlaneDetection.horizontalAndVertical,
+      configuration: ARKitConfiguration.worldTracking,
+      detectionImages: const [
+        ARKitReferenceImage(
+          name:
+              'https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/OSIRIS_Mars_true_color.jpg/800px-OSIRIS_Mars_true_color.jpg',
+          physicalWidth: 0.2,
+        ),
+      ],
+      trackingImages: const [
+        ARKitReferenceImage(
+          name:
+              'https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/OSIRIS_Mars_true_color.jpg/800px-OSIRIS_Mars_true_color.jpg',
+          physicalWidth: 0.2,
+        ),
+      ],
+      onARKitViewCreated: (ARKitController arKitController) {
+        arkitController = arKitController;
+
+        arkitController.onAddNodeForAnchor = (ARKitAnchor anchor) {
+          //widget.onImageDetected!();
+          print("Anchor added: ${anchor.identifier}");
+          if (anchor is ARKitImageAnchor) {
+            setState(() {
+              anchorWasFound = true;
+            });
+
+            final material = ARKitMaterial(
+              lightingModelName: ARKitLightingModel.lambert,
+              diffuse: ARKitMaterialProperty.image(
+                'https://www.classe.cornell.edu/~seb/celestia/marsc-1k.jpg',
+              ),
+            );
+            final sphere = ARKitSphere(materials: [material], radius: 0.1);
+
+            final earthPosition = anchor.transform.getColumn(3);
+            final node = ARKitNode(
+              geometry: sphere,
+              position: vector.Vector3(
+                earthPosition.x,
+                earthPosition.y,
+                earthPosition.z,
+              ),
+              eulerAngles: vector.Vector3.zero(),
+            );
+            arkitController.add(node);
+
+            timer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
+              final old = node.eulerAngles;
+              final eulerAngles = vector.Vector3(old.x + 0.01, old.y, old.z);
+              node.eulerAngles = eulerAngles;
+
+              var newAnchorPosition = anchor.transform.getColumn(3);
+
+              setState(() {
+                message =
+                    "AX: ${newAnchorPosition.x} AY: ${newAnchorPosition.y} AZ: ${newAnchorPosition.z} \n X: ${eulerAngles.x} Y: ${eulerAngles.y} Z: ${eulerAngles.z}";
+              });
+            });
+          }
+        };
+
+        arkitController.onSessionWasInterrupted = () {
+          print("session interrupted");
+        };
+
+        arkitController.onUpdateNodeForAnchor = (ARKitAnchor anchor) {
+          print("Anchor updated: ${anchor.identifier}");
+          if (anchor is ARKitImageAnchor) {
+            setState(() {
+              anchorWasFound = true;
+            });
+          }
+        };
+
+        arkitController.onDidRemoveNodeForAnchor = (ARKitAnchor anchor) {
+          //widget.onImageRemoved!();
+          print("Anchor removed: ${anchor.identifier}");
+          if (anchor is ARKitImageAnchor) {
+            setState(() {
+              anchorWasFound = false;
+            });
+          }
+        };
+
+        // final position1 = vector.Vector3(0, -0.14, -0.20);
+
+        // print(position1);
+
+        // final node = ARKitGltfNode(
+        //   url: url,
+        //   assetType: AssetType.flutterAsset,
+        //   scale: vector.Vector3(0.1, 0.1, 0.1),
+        //   position: position1,
+        // );
+        // // final node = _getNodeFromNetwork(position);
+        // //arkitController.add(node);
+
+        // arkitController.onARTap = (ar) {
+        //   final point = ar.firstWhereOrNull(
+        //     (o) => o.type == ARKitHitTestResultType.featurePoint,
+        //   );
+        //   if (point != null) {
+        //     final position = vector.Vector3(
+        //       point.worldTransform.getColumn(3).x,
+        //       point.worldTransform.getColumn(3).y,
+        //       point.worldTransform.getColumn(3).z,
+        //     );
+
+        //     final position1 = vector.Vector3(0.02, -0.04, -0.08);
+
+        //     print(position);
+
+        //     final node = ARKitGltfNode(
+        //       url: url,
+        //       assetType: AssetType.flutterAsset,
+        //       scale: vector.Vector3(0.1, 0.1, 0.1),
+        //       position: position1,
+        //     );
+        //     // final node = _getNodeFromNetwork(position);
+        //     arkitController.add(node);
+        //   }
+        // };
+
+        // arKitController.onARTap = (ar) {
+        //   final ARKitTestResult? point = ar.firstWhere(
+        //     (o) => o.type == ARKitHitTestResultType.featurePoint,
+        //   );
+        //   if (point != null) {
+        //     final position = vector.Vector3(
+        //       point.worldTransform.getColumn(3).x,
+        //       point.worldTransform.getColumn(3).y,
+        //       point.worldTransform.getColumn(3).z,
+        //     );
+
+        //     final node = ARKitGltfNode(
+        //       url: url,
+        //       assetType: AssetType.flutterAsset,
+        //       scale: vector.Vector3(0.1, 0.1, 0.1),
+        //       position: position,
+        //     );
+        //     // final node = _getNodeFromNetwork(position);
+        //     arKitController.add(node);
+        //   }
+        // };
+      },
+    );
+  }
+
+  Widget body() {
+    if (widget.isShowDarkBackground) {
+      return Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: BoxDecoration(color: Colors.black),
+        child: Stack(
+          alignment: AlignmentDirectional.center,
+          children: widget.children,
+        ),
+      );
+    }
+
+    return Stack(
+      alignment: AlignmentDirectional.centerStart,
+      children: [arKitScene(), ...widget.children],
+    );
+    //return Stack(alignment: AlignmentDirectional.center, children: children());
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: Stack(
-        alignment: AlignmentDirectional.center,
-        children: [
-          ARKitSceneView(
-            showFeaturePoints: true,
-            enableTapRecognizer: true,
-            enablePinchRecognizer: true,
-            enableRotationRecognizer: true,
-            planeDetection: ARPlaneDetection.horizontalAndVertical,
-            configuration: ARKitConfiguration.worldTracking,
-            detectionImages: const [
-              ARKitReferenceImage(
-                name:
-                    'https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/OSIRIS_Mars_true_color.jpg/800px-OSIRIS_Mars_true_color.jpg',
-                physicalWidth: 0.2,
-              ),
-            ],
-            onARKitViewCreated: (ARKitController arKitController) {
-              arkitController = arKitController;
-
-              arkitController.onAddNodeForAnchor = (ARKitAnchor anchor) {
-                print(anchor.identifier);
-                if (anchor is ARKitImageAnchor) {
-                  setState(() {
-                    anchorWasFound = true;
-                  });
-
-                  final material = ARKitMaterial(
-                    lightingModelName: ARKitLightingModel.lambert,
-                    diffuse: ARKitMaterialProperty.image(
-                      'https://www.classe.cornell.edu/~seb/celestia/marsc-1k.jpg',
-                    ),
-                  );
-                  final sphere = ARKitSphere(
-                    materials: [material],
-                    radius: 0.1,
-                  );
-
-                  final earthPosition = anchor.transform.getColumn(3);
-                  final node = ARKitNode(
-                    geometry: sphere,
-                    position: vector.Vector3(
-                      earthPosition.x,
-                      earthPosition.y,
-                      earthPosition.z,
-                    ),
-                    eulerAngles: vector.Vector3.zero(),
-                  );
-                  arkitController.add(node);
-
-                  timer = Timer.periodic(const Duration(milliseconds: 50), (
-                    timer,
-                  ) {
-                    final old = node.eulerAngles;
-                    final eulerAngles = vector.Vector3(
-                      old.x + 0.01,
-                      old.y,
-                      old.z,
-                    );
-                    node.eulerAngles = eulerAngles;
-                  });
-                }
-              };
-
-              arkitController.onDidRemoveNodeForAnchor = (ARKitAnchor anchor) {
-                print(anchor.identifier);
-                if (anchor is ARKitImageAnchor) {
-                  setState(() {
-                    anchorWasFound = false;
-                  });
-                }
-              };
-
-              final position1 = vector.Vector3(0, -0.14, -0.20);
-
-              print(position1);
-
-              final node = ARKitGltfNode(
-                url: url,
-                assetType: AssetType.flutterAsset,
-                scale: vector.Vector3(0.1, 0.1, 0.1),
-                position: position1,
-              );
-              // final node = _getNodeFromNetwork(position);
-              //arkitController.add(node);
-
-              arkitController.onARTap = (ar) {
-                final point = ar.firstWhereOrNull(
-                  (o) => o.type == ARKitHitTestResultType.featurePoint,
-                );
-                if (point != null) {
-                  final position = vector.Vector3(
-                    point.worldTransform.getColumn(3).x,
-                    point.worldTransform.getColumn(3).y,
-                    point.worldTransform.getColumn(3).z,
-                  );
-
-                  final position1 = vector.Vector3(0.02, -0.04, -0.08);
-
-                  print(position);
-
-                  final node = ARKitGltfNode(
-                    url: url,
-                    assetType: AssetType.flutterAsset,
-                    scale: vector.Vector3(0.1, 0.1, 0.1),
-                    position: position1,
-                  );
-                  // final node = _getNodeFromNetwork(position);
-                  arkitController.add(node);
-                }
-              };
-
-              // arKitController.onARTap = (ar) {
-              //   final ARKitTestResult? point = ar.firstWhere(
-              //     (o) => o.type == ARKitHitTestResultType.featurePoint,
-              //   );
-              //   if (point != null) {
-              //     final position = vector.Vector3(
-              //       point.worldTransform.getColumn(3).x,
-              //       point.worldTransform.getColumn(3).y,
-              //       point.worldTransform.getColumn(3).z,
-              //     );
-
-              //     final node = ARKitGltfNode(
-              //       url: url,
-              //       assetType: AssetType.flutterAsset,
-              //       scale: vector.Vector3(0.1, 0.1, 0.1),
-              //       position: position,
-              //     );
-              //     // final node = _getNodeFromNetwork(position);
-              //     arKitController.add(node);
-              //   }
-              // };
-            },
-          ),
-          anchorWasFound
-              ? Container()
-              : Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  'Point the camera at Mars photo from the article about Mars on Wikipedia.',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.headlineSmall!.copyWith(color: Colors.white),
-                ),
-              ),
-          ...widget.children,
-        ],
-      ),
+      body: body(),
       floatingActionButton:
           widget.isShowingFAB
               ? Row(

@@ -6,6 +6,8 @@ import 'package:flutter_3d_controller/flutter_3d_controller.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:path_animation/widget/path_animation.dart';
+import 'package:reveal/components/three_d_character.dart';
+import 'package:reveal/configs/constants.dart';
 import 'package:reveal/configs/layout.dart';
 import 'package:reveal/services/naviagtion_service.dart';
 import 'package:reveal/views/demo/page.dart';
@@ -18,23 +20,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final String mascotUrl = 'assets/mascot-01.glb';
+  //final String mascotUrl = 'assets/characters/mascot-01.glb';
   late Flutter3DController _mascotController;
   late final Path mascotAnimationPath;
-
-  final List<Color> colorizeColors = [
-    Colors.white,
-    Colors.black,
-    Colors.cyan,
-    Colors.pink,
-    Colors.purple,
-    Colors.black,
-    Colors.indigo,
-    Colors.cyan,
-    Colors.white,
-    Colors.pink,
-    Colors.black,
-  ];
 
   final TextStyle colorizeTextStyle = GoogleFonts.sourceSans3(
     fontWeight: FontWeight.w800,
@@ -53,11 +41,11 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _initMascotAnimationPath();
-    Future.delayed(Duration(seconds: 10), () {
-      NavigationService().push(
-        MaterialPageRoute(builder: (context) => const DemoPage()),
-      );
-    });
+    // Future.delayed(Duration(seconds: 10), () {
+    //   NavigationService().push(
+    //     MaterialPageRoute(builder: (context) => const DemoPage()),
+    //   );
+    // });
   }
 
   void _initMascotAnimationPath() {
@@ -68,11 +56,20 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return ARAppLayout(
+      isShowDarkBackground: true,
       children: [
-        animatedLogoBackground(),
-        animatedRevealLogo(),
-        mascotCharacter(),
-      ],
+            animatedLogoBackground(),
+            animatedRevealLogo(),
+            mascotCharacter(),
+          ]
+          .animate(
+            onComplete: (controller) {
+              NavigationService().push(
+                MaterialPageRoute(builder: (context) => const DemoPage()),
+              );
+            },
+          )
+          .fadeOut(delay: Duration(seconds: 12)),
     );
   }
 
@@ -86,27 +83,12 @@ class _HomePageState extends State<HomePage> {
                   ColorizeAnimatedText(
                     'REVEAL',
                     textStyle: colorizeTextStyle,
-                    colors: colorizeColors,
+                    colors: AppConstants.TEXT_COLORS,
                     speed: const Duration(milliseconds: 1200),
                   ),
                 ],
                 isRepeatingAnimation: true,
               ),
-              // Text(
-              //   "REVEAL",
-              //   style: GoogleFonts.sourceSans3(
-              //     fontWeight: FontWeight.w800,
-              //     fontSize: 160,
-              //     color: Colors.white,
-              //     shadows: [
-              //       Shadow(
-              //         color: Colors.black.withValues(alpha: 0.5),
-              //         offset: const Offset(2, 2),
-              //         blurRadius: 10,
-              //       ),
-              //     ],
-              //   ),
-              // ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 80, 0, 0),
                 child: Text(
@@ -186,15 +168,27 @@ class _HomePageState extends State<HomePage> {
       top: 100,
       width: 100,
       height: 100,
-      child: Flutter3DViewer(src: mascotUrl, controller: mascotController()),
+      child: ThreeDCharacter(
+        url: AppConstants.MASCOT,
+      ).animate().scale(duration: const Duration(seconds: 7)),
     );
+
+    // return Positioned(
+    //   left: 100,
+    //   top: 100,
+    //   width: 100,
+    //   height: 100,
+    //   child: Flutter3DViewer(
+    //     src: AppConstants.MASCOT,
+    //     controller: mascotController(),
+    //   ).animate().scale(duration: const Duration(seconds: 7)),
+    // );
   }
 
   Flutter3DController mascotController() {
     _mascotController = Flutter3DController();
 
     try {
-      print('Mascot model loaded: $_mascotController.onModelLoaded.value');
       _mascotController.onModelLoaded.addListener(() {
         _mascotController.getAvailableTextures().then((textures) {
           if (textures.isNotEmpty) {

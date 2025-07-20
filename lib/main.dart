@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:reveal/configs/theme.dart';
 import 'package:reveal/services/naviagtion_service.dart';
-import 'package:reveal/views/test/camera/page.dart';
+import 'package:reveal/views/demo/page.dart';
 //import 'package:reveal/views/home/page.dart';
 
 void main() {
@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: appTheme,
       title: 'Reveal 360',
-      home: CameraTestPage(),
+      home: DemoPage(),
     );
   }
 }

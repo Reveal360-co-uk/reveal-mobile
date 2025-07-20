@@ -50,7 +50,7 @@ class _AITestPageState extends State<AITestPage> {
                       language: VoiceLanguages.english,
                     )
                     .then((response) {
-                      _voiceService.speak(response, VoiceLanguages.english);
+                      _voiceService.speak(response);
                     });
               },
               child: Text("Submit"),

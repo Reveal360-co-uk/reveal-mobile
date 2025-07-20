@@ -1,10 +1,13 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:flutter/material.dart';
 import 'package:reveal/configs/types.dart';
 
 enum VoiceLanguages { hindi, english }
 
+enum VoiceGender { male, female }
+
 class AppConstants {
-  // ignore: non_constant_identifier_names
   static List<BuiltInModelFile> BUILT_IN_MODELS = [
     // BuiltInModelFile(name: "Apple", path: "assets/apple.dae", isDae: true),
     // BuiltInModelFile(name: "Box", path: "assets/Box.gltf"),
@@ -59,7 +62,6 @@ class AppConstants {
     // ),
   ];
 
-  // ignore: non_constant_identifier_names
   static List<Questions> QUESTIONS = [
     Questions(question: "hi", answer: "Hey"),
     Questions(question: "hello", answer: "Hey"),
@@ -73,11 +75,33 @@ class AppConstants {
     Questions(question: "bye", answer: "See you later"),
   ];
 
-  // ignore: non_constant_identifier_names
   static List<BottomMenuItem> BOTTOM_MENU_ITEMS =
       [
         BottomMenuItem(title: "Back", icon: Icons.square),
         BottomMenuItem(title: "Talk", icon: Icons.mic),
         BottomMenuItem(title: "About", icon: Icons.info),
       ].toList();
+
+  static String MASCOT = "assets/characters/mascot-01.glb";
+  static String WOMEN = "assets/characters/reveal-01.glb";
+  static String STILL_STANDING_WOMEN = "assets/characters/reveal-03.glb";
+  static String TALKING_WOMEN = "assets/characters/reveal-04.glb";
+  static String VASE1 = "assets/characters/vase-01.glb";
+  static String VASE2 = "assets/characters/vase-02.glb";
+  static String VASE3 = "assets/characters/vase-03.glb";
+  static String PLESIOSAURUS = "assets/characters/plesiosaurus.glb";
+
+  static List<Color> TEXT_COLORS = [
+    Colors.white,
+    Colors.black,
+    Colors.cyan,
+    Colors.pink,
+    Colors.purple,
+    Colors.black,
+    Colors.indigo,
+    Colors.cyan,
+    Colors.white,
+    Colors.pink,
+    Colors.black,
+  ];
 }
