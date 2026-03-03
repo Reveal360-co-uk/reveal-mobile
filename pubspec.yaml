@@ -30,7 +30,7 @@ environment:
 dependencies:
   ai_glow: ^0.0.2
   animated_text_kit: ^4.2.3
-  arkit_plugin: ^1.1.2
+  arkit_plugin: ^1.3.0
   blurrycontainer: ^2.1.0
   camera: ^0.11.1
   cupertino_icons: ^1.0.8
@@ -45,7 +45,7 @@ dependencies:
   flutter_gemini: ^3.0.0
   flutter_launcher_icons: ^0.14.3
   flutter_tts: ^4.2.2
-  google_fonts: ^6.2.1
+  google_fonts: ^8.0.2
   image_compare_2: ^1.1.7
   modal_bottom_sheet: ^3.0.0
   model_viewer_plus: ^1.9.3
@@ -56,7 +56,7 @@ dependencies:
   waveform_flutter: ^1.2.0
 
 dev_dependencies:
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
   flutter_test:
     sdk: flutter
 
@@ -74,7 +74,7 @@ flutter:
     - assets/characters/plesiosaurus.glb
     - assets/icons/reveal-logo.jpg
     - assets/characters/
-
+    - assets/images/
   #   - images/a_dot_ham.jpeg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

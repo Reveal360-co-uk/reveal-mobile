@@ -158,16 +158,20 @@ class _ARAppLayoutState extends State<ARAppLayout> {
       configuration: ARKitConfiguration.worldTracking,
       detectionImages: const [
         ARKitReferenceImage(
-          name:
-              'https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/OSIRIS_Mars_true_color.jpg/800px-OSIRIS_Mars_true_color.jpg',
-          physicalWidth: 0.2,
+          name: 'assets/images/QR-Code.png',
+          physicalWidth: 0.2, // Physical size in meters (20cm width)
+          // name:
+          //     'https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/OSIRIS_Mars_true_color.jpg/800px-OSIRIS_Mars_true_color.jpg',
+          // physicalWidth: 0.2,
         ),
       ],
       trackingImages: const [
         ARKitReferenceImage(
-          name:
-              'https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/OSIRIS_Mars_true_color.jpg/800px-OSIRIS_Mars_true_color.jpg',
-          physicalWidth: 0.2,
+          name: 'assets/images/QR-Code.png',
+          physicalWidth: 0.2, // Physical size in meters (20cm width)
+          // name:
+          //     'https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/OSIRIS_Mars_true_color.jpg/800px-OSIRIS_Mars_true_color.jpg',
+          // physicalWidth: 0.2,
         ),
       ],
       onARKitViewCreated: (ARKitController arKitController) {
@@ -184,7 +188,7 @@ class _ARAppLayoutState extends State<ARAppLayout> {
             final material = ARKitMaterial(
               lightingModelName: ARKitLightingModel.lambert,
               diffuse: ARKitMaterialProperty.image(
-                'https://www.classe.cornell.edu/~seb/celestia/marsc-1k.jpg',
+                'assets/images/mars-texture.jpg',
               ),
             );
             final sphere = ARKitSphere(materials: [material], radius: 0.1);
